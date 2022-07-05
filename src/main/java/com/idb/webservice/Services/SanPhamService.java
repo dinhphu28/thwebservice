@@ -55,7 +55,7 @@ public class SanPhamService {
         List<SanPham> tmpSaved = null;
 
         try {
-            tmpSaved = repo.saveAll(sanPhams);
+            tmpSaved = repo.saveAll(tmpSanPhams);
         } catch (Exception e) {
             //TODO: handle exception
         }

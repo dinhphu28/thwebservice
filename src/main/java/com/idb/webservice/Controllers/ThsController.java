@@ -1,5 +1,6 @@
 package com.idb.webservice.Controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.idb.webservice.Entities.Ths;
 import com.idb.webservice.Models.ReturnModel;
+import com.idb.webservice.Models.ThsBatchCreateModel;
 import com.idb.webservice.Models.ThsCreateModel;
 import com.idb.webservice.Services.ThsService;
 
@@ -72,6 +74,36 @@ public class ThsController {
             entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
         }
 
+        return entity;
+    }
+
+    @PostMapping(
+        value = "/create-many.json",
+        produces = MediaType.APPLICATION_JSON_VALUE,
+        consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Object> createBatch(@RequestBody ThsBatchCreateModel thsBatch, @RequestHeader(value = "X-API-KEY", required = false) String apiKey) {
+        ResponseEntity<Object> entity;
+
+        if(apiKey == null) {
+            entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
+        } else if(apiKey.equals(localApiKey)) {
+            List<Ths> thss = new ArrayList<Ths>();
+            List<ThsCreateModel> thsModels = thsBatch.getThss();
+
+            for (ThsCreateModel thsCreateModel : thsModels) {
+                Ths ths = new Ths(null, thsCreateModel.getTpTinh(), thsCreateModel.getQuan(), thsCreateModel.getBanRau(), thsCreateModel.getBanKem(), thsCreateModel.getDiaChi(), thsCreateModel.getSdtCh(), thsCreateModel.getGs(), thsCreateModel.getSdtGs(), thsCreateModel.getCuaHangTruong(), thsCreateModel.getSdtCht(), thsCreateModel.getAsm(), thsCreateModel.getSdtAsm(), thsCreateModel.getTrangThai());
+
+                thss.add(ths);
+            }
+
+            List<Ths> tmpSaved = thsService.createMulti(thss);
+
+            entity = new ResponseEntity<>(tmpSaved, HttpStatus.OK);
+        } else {
+            entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
+        }
+        
         return entity;
     }
 }

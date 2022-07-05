@@ -82,21 +82,27 @@ public class SanPhamController {
         produces = MediaType.APPLICATION_JSON_VALUE,
         consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Object> createBatch(@RequestBody SanPhamBatchCreateModel sanPhamBatch) {
+    public ResponseEntity<Object> createBatch(@RequestBody SanPhamBatchCreateModel sanPhamBatch, @RequestHeader(value = "X-API-KEY", required = false) String apiKey) {
         ResponseEntity<Object> entity;
 
-        List<SanPham> sanPhams = new ArrayList<SanPham>();
-        List<SanPhamCreateModel> sanPhamModels = sanPhamBatch.getSanPhams();
+        if(apiKey == null) {
+            entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
+        } else if(apiKey.equals(localApiKey)) {
+            List<SanPham> sanPhams = new ArrayList<SanPham>();
+            List<SanPhamCreateModel> sanPhamModels = sanPhamBatch.getSanPhams();
 
-        for (SanPhamCreateModel sanPhamCreateModel : sanPhamModels) {
-            SanPham sanPham = new SanPham(null, sanPhamCreateModel.getDongSp(), sanPhamCreateModel.getTheTich(), sanPhamCreateModel.getTenSp(), sanPhamCreateModel.getSoHop(), sanPhamCreateModel.getBaoGia(), sanPhamCreateModel.getHsd(), sanPhamCreateModel.getBaoQuan(), sanPhamCreateModel.getTrangThai());
+            for (SanPhamCreateModel sanPhamCreateModel : sanPhamModels) {
+                SanPham sanPham = new SanPham(null, sanPhamCreateModel.getDongSp(), sanPhamCreateModel.getTheTich(), sanPhamCreateModel.getTenSp(), sanPhamCreateModel.getSoHop(), sanPhamCreateModel.getBaoGia(), sanPhamCreateModel.getHsd(), sanPhamCreateModel.getBaoQuan(), sanPhamCreateModel.getTrangThai());
 
-            sanPhams.add(sanPham);
+                sanPhams.add(sanPham);
+            }
+
+            List<SanPham> tmpSaved = sanPhamService.createMulti(sanPhams);
+
+            entity = new ResponseEntity<>(tmpSaved, HttpStatus.OK);
+        } else {
+            entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
         }
-
-        List<SanPham> tmpSaved = sanPhamService.createMulti(sanPhams);
-
-        entity = new ResponseEntity<>(tmpSaved, HttpStatus.OK);
 
         return entity;
     }

@@ -82,21 +82,27 @@ public class NppController {
         produces = MediaType.APPLICATION_JSON_VALUE,
         consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Object> createBatch(@RequestBody NppBatchCreateModel nppBatch) {
+    public ResponseEntity<Object> createBatch(@RequestBody NppBatchCreateModel nppBatch, @RequestHeader(value = "X-API-KEY", required = false) String apiKey) {
         ResponseEntity<Object> entity;
 
-        List<Npp> npps = new ArrayList<Npp>();
-        List<NppCreateModel> nppModels = nppBatch.getNpps();
+        if(apiKey == null) {
+            entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
+        } else if(apiKey.equals(localApiKey)) {
+            List<Npp> npps = new ArrayList<Npp>();
+            List<NppCreateModel> nppModels = nppBatch.getNpps();
 
-        for (NppCreateModel nppModel : nppModels) {
-            Npp npp = new Npp(null, nppModel.getKenh(), nppModel.getMien(), nppModel.getTinhThanh(), nppModel.getQuanHuyen(), nppModel.getQuanHuyen(), nppModel.getGiamSat01Ten(), nppModel.getGiamSat02Sdt(), nppModel.getTenAsm(), nppModel.getDtAsm(), nppModel.getTenSm(), nppModel.getDtSm(), nppModel.getTrangThai());
+            for (NppCreateModel nppModel : nppModels) {
+                Npp npp = new Npp(null, nppModel.getKenh(), nppModel.getMien(), nppModel.getTinhThanh(), nppModel.getQuanHuyen(), nppModel.getQuanHuyen(), nppModel.getGiamSat01Ten(), nppModel.getGiamSat02Sdt(), nppModel.getTenAsm(), nppModel.getDtAsm(), nppModel.getTenSm(), nppModel.getDtSm(), nppModel.getTrangThai());
 
-            npps.add(npp);
+                npps.add(npp);
+            }
+
+            List<Npp> tmpSaved = nppService.createMulti(npps);
+
+            entity = new ResponseEntity<>(tmpSaved, HttpStatus.OK);
+        } else {
+            entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
         }
-
-        List<Npp> tmpSaved = nppService.createMulti(npps);
-
-        entity = new ResponseEntity<>(tmpSaved, HttpStatus.OK);
 
         return entity;
     }

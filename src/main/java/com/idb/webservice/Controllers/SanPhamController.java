@@ -82,11 +82,11 @@ public class SanPhamController {
         produces = MediaType.APPLICATION_JSON_VALUE,
         consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Object> createBatch(@RequestBody SanPhamBatchCreateModel thsBatch) {
+    public ResponseEntity<Object> createBatch(@RequestBody SanPhamBatchCreateModel sanPhamBatch) {
         ResponseEntity<Object> entity;
 
         List<SanPham> sanPhams = new ArrayList<SanPham>();
-        List<SanPhamCreateModel> sanPhamModels = thsBatch.getSanPhams();
+        List<SanPhamCreateModel> sanPhamModels = sanPhamBatch.getSanPhams();
 
         for (SanPhamCreateModel sanPhamCreateModel : sanPhamModels) {
             SanPham sanPham = new SanPham(null, sanPhamCreateModel.getDongSp(), sanPhamCreateModel.getTheTich(), sanPhamCreateModel.getTenSp(), sanPhamCreateModel.getSoHop(), sanPhamCreateModel.getBaoGia(), sanPhamCreateModel.getHsd(), sanPhamCreateModel.getBaoQuan(), sanPhamCreateModel.getTrangThai());

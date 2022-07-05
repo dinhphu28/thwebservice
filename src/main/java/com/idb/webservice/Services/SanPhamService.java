@@ -44,4 +44,22 @@ public class SanPhamService {
 
         return tmpSaved;
     }
+
+    public List<SanPham> createMulti(List<SanPham> sanPhams) {
+        List<SanPham> tmpSanPhams = sanPhams;
+
+        for (SanPham sanPham : tmpSanPhams) {
+            sanPham.setId(null);
+        }
+
+        List<SanPham> tmpSaved = null;
+
+        try {
+            tmpSaved = repo.saveAll(sanPhams);
+        } catch (Exception e) {
+            //TODO: handle exception
+        }
+
+        return tmpSaved;
+    }
 }

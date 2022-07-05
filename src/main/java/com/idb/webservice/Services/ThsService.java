@@ -44,4 +44,22 @@ public class ThsService {
 
         return tmpToSaved;
     }
+
+    public List<Ths> createMulti(List<Ths> thss) {
+        List<Ths> tmpThss = thss;
+
+        for (Ths ths : tmpThss) {
+            ths.setId(null);
+        }
+
+        List<Ths> tmpSaved = null;
+
+        try {
+            tmpSaved = repo.saveAll(tmpThss);
+        } catch (Exception e) {
+            //TODO: handle exception
+        }
+
+        return tmpSaved;
+    }
 }

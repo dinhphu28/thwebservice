@@ -3,6 +3,7 @@ package com.idb.webservice.Controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,10 +13,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.idb.webservice.Entities.SpTicket;
+import com.idb.webservice.Models.ReturnModel;
 import com.idb.webservice.Models.SpTicketUpdateModel;
 import com.idb.webservice.Services.SpTicketService;
 
@@ -26,15 +29,24 @@ public class SpTicketController {
     @Autowired
     private SpTicketService service;
 
+    @Value("${idb.internal.apikey}")
+    private String localApiKey;
+
     @GetMapping(
         produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Object> getSpTickets() {
+    public ResponseEntity<Object> getSpTickets(@RequestHeader(value = "X-API-KEY", required = false) String apiKey) {
         ResponseEntity<Object> entity;
 
-        List<SpTicket> spTickets = service.retrieveAll();
+        if(apiKey == null) {
+            entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
+        } else if(apiKey.equals(localApiKey)) {
+            List<SpTicket> spTickets = service.retrieveAll();
 
-        entity = new ResponseEntity<>(spTickets, HttpStatus.OK);
+            entity = new ResponseEntity<>(spTickets, HttpStatus.OK);
+        } else {
+            entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
+        }
 
         return entity;
     }
@@ -43,15 +55,21 @@ public class SpTicketController {
         value = "/{id}",
         produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Object> retrieveSpTicketById(@PathVariable("id") String id) {
+    public ResponseEntity<Object> retrieveSpTicketById(@PathVariable("id") String id, @RequestHeader(value = "X-API-KEY", required = false) String apiKey) {
         ResponseEntity<Object> entity;
 
-        SpTicket ret = service.retrieveById(id);
+        if(apiKey == null) {
+            entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
+        } else if(apiKey.equals(localApiKey)) {
+            SpTicket ret = service.retrieveById(id);
 
-        if(ret != null) {
-            entity = new ResponseEntity<>(ret, HttpStatus.OK);
+            if(ret != null) {
+                entity = new ResponseEntity<>(ret, HttpStatus.OK);
+            } else {
+                entity = new ResponseEntity<>("{ \"Notice\": \"Invalid Input\" }", HttpStatus.NOT_FOUND);
+            }
         } else {
-            entity = new ResponseEntity<>("{ \"Notice\": \"Invalid Input\" }", HttpStatus.NOT_FOUND);
+            entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
         }
 
         return entity;
@@ -61,12 +79,18 @@ public class SpTicketController {
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Object> updateSpTicket(@RequestBody SpTicket spTicket) {
+    public ResponseEntity<Object> updateSpTicket(@RequestBody SpTicket spTicket, @RequestHeader(value = "X-API-KEY", required = false) String apiKey) {
         ResponseEntity<Object> entity;
 
-        SpTicket tmp = service.updateOne(spTicket);
+        if(apiKey == null) {
+            entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
+        } else if(apiKey.equals(localApiKey)) {
+            SpTicket tmp = service.updateOne(spTicket);
 
-        entity = new ResponseEntity<>(tmp, HttpStatus.OK);
+            entity = new ResponseEntity<>(tmp, HttpStatus.OK);
+        } else {
+            entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
+        }
 
         return entity;
     }
@@ -76,22 +100,28 @@ public class SpTicketController {
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Object> updateSpTicketById(@PathVariable("id") String id, @RequestBody SpTicketUpdateModel spTicket) {
+    public ResponseEntity<Object> updateSpTicketById(@PathVariable("id") String id, @RequestBody SpTicketUpdateModel spTicket, @RequestHeader(value = "X-API-KEY", required = false) String apiKey) {
         ResponseEntity<Object> entity;
 
-        SpTicket tmpToSave = service.retrieveById(id);
+        if(apiKey == null) {
+            entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
+        } else if(apiKey.equals(localApiKey)) {
+            SpTicket tmpToSave = service.retrieveById(id);
 
-        tmpToSave.setNgayHenGap(spTicket.getNgayHenGap());
-        tmpToSave.setNgayGoiLaiKhieuNai(spTicket.getNgayGoiLaiKhieuNai());
-        tmpToSave.setNgayHenGoiLai(spTicket.getNgayHenGoiLai());
-        tmpToSave.setNgayGiaohang(spTicket.getNgayGiaohang());
+            tmpToSave.setNgayHenGap(spTicket.getNgayHenGap());
+            tmpToSave.setNgayGoiLaiKhieuNai(spTicket.getNgayGoiLaiKhieuNai());
+            tmpToSave.setNgayHenGoiLai(spTicket.getNgayHenGoiLai());
+            tmpToSave.setNgayGiaohang(spTicket.getNgayGiaohang());
 
-        SpTicket tmpSaved = service.updateOne(tmpToSave);
+            SpTicket tmpSaved = service.updateOne(tmpToSave);
 
-        if(tmpSaved != null) {
-            entity = new ResponseEntity<>(tmpSaved, HttpStatus.OK);
+            if(tmpSaved != null) {
+                entity = new ResponseEntity<>(tmpSaved, HttpStatus.OK);
+            } else {
+                entity = new ResponseEntity<>("{ \"Notice\": \"Invalid Input\" }", HttpStatus.BAD_REQUEST);
+            }
         } else {
-            entity = new ResponseEntity<>("{ \"Notice\": \"Invalid Input\" }", HttpStatus.BAD_REQUEST);
+            entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
         }
 
         return entity;

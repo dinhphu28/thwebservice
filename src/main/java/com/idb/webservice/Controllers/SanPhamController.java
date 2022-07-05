@@ -1,5 +1,6 @@
 package com.idb.webservice.Controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.idb.webservice.Entities.SanPham;
 import com.idb.webservice.Models.ReturnModel;
+import com.idb.webservice.Models.SanPhamBatchCreateModel;
 import com.idb.webservice.Models.SanPhamCreateModel;
 import com.idb.webservice.Services.SanPhamService;
 
@@ -71,6 +73,30 @@ public class SanPhamController {
         } else {
             entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
         }
+
+        return entity;
+    }
+
+    @PostMapping(
+        value = "/create-many.json",
+        produces = MediaType.APPLICATION_JSON_VALUE,
+        consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Object> createBatch(@RequestBody SanPhamBatchCreateModel nppBatch) {
+        ResponseEntity<Object> entity;
+
+        List<SanPham> sanPhams = new ArrayList<SanPham>();
+        List<SanPhamCreateModel> sanPhamModels = nppBatch.getSanPhams();
+
+        for (SanPhamCreateModel sanPhamCreateModel : sanPhamModels) {
+            SanPham sanPham = new SanPham(null, sanPhamCreateModel.getDongSp(), sanPhamCreateModel.getTheTich(), sanPhamCreateModel.getTenSp(), sanPhamCreateModel.getSoHop(), sanPhamCreateModel.getBaoGia(), sanPhamCreateModel.getHsd(), sanPhamCreateModel.getBaoQuan(), sanPhamCreateModel.getTrangThai());
+
+            sanPhams.add(sanPham);
+        }
+
+        List<SanPham> tmpSaved = sanPhamService.createMulti(sanPhams);
+
+        entity = new ResponseEntity<>(tmpSaved, HttpStatus.OK);
 
         return entity;
     }

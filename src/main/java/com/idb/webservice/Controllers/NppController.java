@@ -1,5 +1,6 @@
 package com.idb.webservice.Controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.idb.webservice.Entities.Npp;
+import com.idb.webservice.Models.NppBatchCreateModel;
 import com.idb.webservice.Models.NppCreateModel;
 import com.idb.webservice.Models.ReturnModel;
 import com.idb.webservice.Services.NppService;
@@ -72,6 +74,30 @@ public class NppController {
             entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
         }
         
+        return entity;
+    }
+
+    @PostMapping(
+        value = "/create-many.json",
+        produces = MediaType.APPLICATION_JSON_VALUE,
+        consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Object> createBatch(@RequestBody NppBatchCreateModel nppBatch) {
+        ResponseEntity<Object> entity;
+
+        List<Npp> npps = new ArrayList<Npp>();
+        List<NppCreateModel> nppModels = nppBatch.getNpps();
+
+        for (NppCreateModel nppModel : nppModels) {
+            Npp npp = new Npp(null, nppModel.getKenh(), nppModel.getMien(), nppModel.getTinhThanh(), nppModel.getQuanHuyen(), nppModel.getQuanHuyen(), nppModel.getGiamSat01Ten(), nppModel.getGiamSat02Sdt(), nppModel.getTenAsm(), nppModel.getDtAsm(), nppModel.getTenSm(), nppModel.getDtSm(), nppModel.getTrangThai());
+
+            npps.add(npp);
+        }
+
+        List<Npp> tmpSaved = nppService.createMulti(npps);
+
+        entity = new ResponseEntity<>(tmpSaved, HttpStatus.OK);
+
         return entity;
     }
 }

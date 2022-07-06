@@ -61,7 +61,7 @@ public class NppController {
         if(apiKey == null) {
             entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
         } else if(apiKey.equals(localApiKey)) {
-            Npp npp = new Npp(null, nppModel.getKenh(), nppModel.getMien(), nppModel.getTinhThanh(), nppModel.getQuanHuyen(), nppModel.getQuanHuyen(), nppModel.getGiamSat01Ten(), nppModel.getGiamSat02Sdt(), nppModel.getTenAsm(), nppModel.getDtAsm(), nppModel.getTenSm(), nppModel.getDtSm(), nppModel.getTrangThai());
+            Npp npp = new Npp(null, nppModel.getKenh(), nppModel.getMien(), nppModel.getTinhThanh(), nppModel.getQuanHuyen(), nppModel.getQuanHuyen(), nppModel.getGiamSat01Ten(), nppModel.getGiamSat01Sdt(), nppModel.getTenAsm(), nppModel.getDtAsm(), nppModel.getTenSm(), nppModel.getDtSm(), nppModel.getTrangThai());
 
             Npp tmpSaved = nppService.createOne(npp);
 
@@ -92,7 +92,7 @@ public class NppController {
             List<NppCreateModel> nppModels = nppBatch.getNpps();
 
             for (NppCreateModel nppModel : nppModels) {
-                Npp npp = new Npp(null, nppModel.getKenh(), nppModel.getMien(), nppModel.getTinhThanh(), nppModel.getQuanHuyen(), nppModel.getQuanHuyen(), nppModel.getGiamSat01Ten(), nppModel.getGiamSat02Sdt(), nppModel.getTenAsm(), nppModel.getDtAsm(), nppModel.getTenSm(), nppModel.getDtSm(), nppModel.getTrangThai());
+                Npp npp = new Npp(null, nppModel.getKenh(), nppModel.getMien(), nppModel.getTinhThanh(), nppModel.getQuanHuyen(), nppModel.getQuanHuyen(), nppModel.getGiamSat01Ten(), nppModel.getGiamSat01Sdt(), nppModel.getTenAsm(), nppModel.getDtAsm(), nppModel.getTenSm(), nppModel.getDtSm(), nppModel.getTrangThai());
 
                 npps.add(npp);
             }

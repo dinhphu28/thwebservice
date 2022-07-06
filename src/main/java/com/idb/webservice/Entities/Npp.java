@@ -46,7 +46,7 @@ public class Npp {
     private String giamSat01Ten;
 
     @Column(name = "c_giam_sat_01_sdt")
-    private String giamSat02Sdt;
+    private String giamSat01Sdt;
 
     @Column(name = "c_ten_asm")
     private String tenAsm;

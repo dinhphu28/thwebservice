@@ -23,7 +23,7 @@ public class NppCreateModel {
 
     private String giamSat01Ten;
 
-    private String giamSat02Sdt;
+    private String giamSat01Sdt;
 
     private String tenAsm;
 

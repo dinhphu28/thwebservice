@@ -1,5 +1,7 @@
 package com.idb.webservice.Entities;
 
+import java.time.LocalDateTime;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -62,4 +64,22 @@ public class Npp {
 
     @Column(name = "c_trang_thai")
     private String trangThai;
+
+    // @Column(name = "datecreated")
+    // private LocalDateTime dateCreated;
+
+    // @Column(name = "datemodified")
+    // private LocalDateTime dateModified;
+
+    // @Column(name = "createdby")
+    // private String createdBy;
+
+    // @Column(name = "createdbyname")
+    // private String createdByName;
+
+    // @Column(name = "modifiedby")
+    // private String modifiedBy;
+
+    // @Column(name = "modifiedbyname")
+    // private String modifiedByName;
 }

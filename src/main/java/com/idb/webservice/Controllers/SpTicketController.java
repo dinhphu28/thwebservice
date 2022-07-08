@@ -1,5 +1,6 @@
 package com.idb.webservice.Controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +18,14 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.idb.webservice.Entities.ProductOrdered;
+import com.idb.webservice.Entities.SanPham;
 import com.idb.webservice.Entities.SpTicket;
+import com.idb.webservice.Models.ProductOrderMailTemplateModel;
 import com.idb.webservice.Models.ReturnModel;
 import com.idb.webservice.Models.SpTicketUpdateModel;
+import com.idb.webservice.Services.ProductOrderedService;
+import com.idb.webservice.Services.SanPhamService;
 import com.idb.webservice.Services.SpTicketService;
 
 @RestController
@@ -28,6 +34,12 @@ import com.idb.webservice.Services.SpTicketService;
 public class SpTicketController {
     @Autowired
     private SpTicketService service;
+
+    @Autowired
+    private ProductOrderedService productOrderedService;
+
+    @Autowired
+    private SanPhamService sanPhamService;
 
     @Value("${idb.internal.apikey}")
     private String localApiKey;
@@ -120,6 +132,41 @@ public class SpTicketController {
             } else {
                 entity = new ResponseEntity<>("{ \"Notice\": \"Invalid Input\" }", HttpStatus.BAD_REQUEST);
             }
+        } else {
+            entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
+        }
+
+        return entity;
+    }
+
+    // Ticket product ordered
+    @GetMapping(
+        value = "/{ticketId}/orderedproducts"
+    )
+    public ResponseEntity<Object> retrieveProductOrderByTicketId(@PathVariable("ticketId") String ticketId, @RequestHeader(value = "X-API-KEY", required = false) String apiKey) {
+        ResponseEntity<Object> entity;
+
+        if(apiKey == null) {
+            entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
+        } else if(apiKey.equals(localApiKey)) {
+            List<ProductOrderMailTemplateModel> orderedProducts = new ArrayList<ProductOrderMailTemplateModel>();
+
+            List<ProductOrdered> productOrdereds = productOrderedService.retrieveByTicketId(ticketId);
+            for (ProductOrdered productOrdered : productOrdereds) {
+                SanPham sanPhamTmp = sanPhamService.retrieveOneById(productOrdered.getSanPham());
+
+                // ProductOrderMailTemplateModel tmpOP = new ProductOrderMailTemplateModel(sanPhamTmp.getTenSp(), productOrdered.getSoLuong(), productOrdered.getGhiChu());
+
+                // orderedProducts.add(tmpOP);
+
+                if(sanPhamTmp != null) {
+                    ProductOrderMailTemplateModel tmpOP = new ProductOrderMailTemplateModel(sanPhamTmp.getTenSp(), productOrdered.getSoLuong(), productOrdered.getGhiChu());
+
+                    orderedProducts.add(tmpOP);
+                }
+            }
+
+            entity = new ResponseEntity<>(orderedProducts, HttpStatus.OK);
         } else {
             entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
         }

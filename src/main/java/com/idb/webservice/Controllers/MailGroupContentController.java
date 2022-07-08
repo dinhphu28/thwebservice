@@ -25,7 +25,7 @@ public class MailGroupContentController {
     @Autowired
     private MailGroupContentService mailGroupContentService;
 
-    @Value("${idb.external.apikey}")
+    @Value("${idb.internal.apikey}")
     private String localApiKey;
 
     @GetMapping(

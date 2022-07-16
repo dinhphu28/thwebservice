@@ -14,22 +14,24 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "app_fd_sp_mail_gr_content")
+@Table(name = "app_fd_sp_mail_contain")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MailGroupContent {
-    
+public class MailInfo {
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "id")
     private String id;
 
-    @Column(name = "c_fkgroup")
-    private String groupId;
+    @Column(name = "c_phone")
+    private String phone;
 
-    @Column(name = "c_fkkh")
-    private String idkh;
+    @Column(name = "c_ten")
+    private String ten;
+
+    @Column(name = "c_email")
+    private String email;
 }

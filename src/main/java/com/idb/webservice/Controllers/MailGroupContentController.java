@@ -1,5 +1,6 @@
 package com.idb.webservice.Controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +16,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.idb.webservice.Entities.MailGroupContent;
+import com.idb.webservice.Entities.MailInfo;
 import com.idb.webservice.Models.ReturnModel;
 import com.idb.webservice.Services.MailGroupContentService;
+import com.idb.webservice.Services.MailInfoService;
 
 @RestController
 @CrossOrigin("*")
@@ -24,6 +27,9 @@ import com.idb.webservice.Services.MailGroupContentService;
 public class MailGroupContentController {
     @Autowired
     private MailGroupContentService mailGroupContentService;
+
+    @Autowired
+    private MailInfoService mailInfoService;
 
     @Value("${idb.internal.apikey}")
     private String localApiKey;
@@ -39,8 +45,18 @@ public class MailGroupContentController {
         } else if(apiKey.equals(localApiKey)) {
             if(groupId != null) {
                 List<MailGroupContent> mailGroupContents = mailGroupContentService.retrieveByGroupId(groupId);
+
+                List<String> ids = new ArrayList<String>();
+
+                for (MailGroupContent item : mailGroupContents) {
+                    String id = item.getIdkh();
+
+                    ids.add(id);
+                }
+
+                List<MailInfo> mailInfos = mailInfoService.retrieveBatchMailByIds(ids);
     
-                entity = new ResponseEntity<>(mailGroupContents, HttpStatus.OK);
+                entity = new ResponseEntity<>(mailInfos, HttpStatus.OK);
             } else {
                 List<MailGroupContent> mailGroupContents = mailGroupContentService.retriveAll();
     

@@ -29,6 +29,10 @@ public class SpTicketService {
         return repo.findAll();
     }
 
+    public List<SpTicket> retriveByAgentXuLy(String agentXuLy) {
+        return repo.findByAgentXuLy(agentXuLy);
+    }
+
     public SpTicket updateOne(SpTicket spTicket) {
 
         SpTicket tmp = null;

@@ -16,11 +16,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.idb.webservice.Entities.ProductOrdered;
 import com.idb.webservice.Entities.SanPham;
 import com.idb.webservice.Entities.SpTicket;
+import com.idb.webservice.Models.EventModel;
 import com.idb.webservice.Models.ProductOrderMailTemplateModel;
 import com.idb.webservice.Models.ReturnModel;
 import com.idb.webservice.Models.SpTicketUpdateModel;
@@ -47,15 +49,26 @@ public class SpTicketController {
     @GetMapping(
         produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Object> getSpTickets(@RequestHeader(value = "X-API-KEY", required = false) String apiKey) {
+    public ResponseEntity<Object> getSpTickets(@RequestHeader(value = "X-API-KEY", required = false) String apiKey, @RequestParam(value = "agent", required = false) String agentXuLy) {
         ResponseEntity<Object> entity;
 
         if(apiKey == null) {
             entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
         } else if(apiKey.equals(localApiKey)) {
-            List<SpTicket> spTickets = service.retrieveAll();
+            if(agentXuLy == null) {
+                List<SpTicket> spTickets = service.retrieveAll();
 
-            entity = new ResponseEntity<>(spTickets, HttpStatus.OK);
+                entity = new ResponseEntity<>(spTickets, HttpStatus.OK);
+            } else if(agentXuLy.equals("")) {
+                List<SpTicket> spTickets = service.retrieveAll();
+
+                entity = new ResponseEntity<>(spTickets, HttpStatus.OK);
+            } else {
+                List<SpTicket> spTickets = service.retriveByAgentXuLy(agentXuLy);
+
+                entity = new ResponseEntity<>(spTickets, HttpStatus.OK);
+            }
+            
         } else {
             entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
         }
@@ -141,7 +154,8 @@ public class SpTicketController {
 
     // Ticket product ordered
     @GetMapping(
-        value = "/{ticketId}/orderedproducts"
+        value = "/{ticketId}/orderedproducts",
+        produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Object> retrieveProductOrderByTicketId(@PathVariable("ticketId") String ticketId, @RequestHeader(value = "X-API-KEY", required = false) String apiKey) {
         ResponseEntity<Object> entity;
@@ -171,6 +185,104 @@ public class SpTicketController {
             entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
         }
 
+        return entity;
+    }
+
+    @GetMapping(
+        value = "/events"
+    )
+    public ResponseEntity<Object> retrieveEvents(@RequestParam(value = "agent", required = false) String agentXuLy, @RequestHeader(value = "X-API-KEY", required = false) String apiKey) {
+        ResponseEntity<Object> entity;
+
+        if(apiKey == null) {
+            entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
+        } else if(apiKey.equals(localApiKey)) {
+            if(agentXuLy == null) {
+                List<EventModel> eventModels = new ArrayList<EventModel>();
+    
+                List<SpTicket> spTickets = service.retrieveAll();
+    
+                for (SpTicket spTicket : spTickets) {
+                    if(spTicket.getNgayHenGap() != null) {
+                        EventModel tmpEm = new EventModel(spTicket.getId(), "Hẹn gặp", spTicket.getNgayHenGap());
+    
+                        eventModels.add(tmpEm);
+                    }
+                    if(spTicket.getNgayGoiLaiKhieuNai() != null) {
+                        EventModel tmpEm = new EventModel(spTicket.getId(), "Gọi lại khiếu nại", spTicket.getNgayGoiLaiKhieuNai());
+    
+                        eventModels.add(tmpEm);
+                    }
+                    if(spTicket.getNgayHenGoiLai() != null) {
+                        EventModel tmpEm = new EventModel(spTicket.getId(), "Hẹn gọi lại", spTicket.getNgayHenGoiLai());
+    
+                        eventModels.add(tmpEm);
+                    }
+                    if(spTicket.getNgayGiaohang() != null) {
+                        EventModel tmpEm = new EventModel(spTicket.getId(), "Giao hàng", spTicket.getNgayGiaohang());
+    
+                        eventModels.add(tmpEm);
+                    }
+                }
+    
+                entity = new ResponseEntity<>(eventModels, HttpStatus.OK);
+            } else if(agentXuLy.equals((""))) {
+                List<EventModel> eventModels = new ArrayList<EventModel>();
+    
+                List<SpTicket> spTickets = service.retrieveAll();
+    
+                for (SpTicket spTicket : spTickets) {
+                    if(spTicket.getNgayHenGap() != null) {
+                        EventModel tmpEm = new EventModel(spTicket.getId(), "Hẹn gặp", spTicket.getNgayHenGap());
+    
+                        eventModels.add(tmpEm);
+                    } else if(spTicket.getNgayGoiLaiKhieuNai() != null) {
+                        EventModel tmpEm = new EventModel(spTicket.getId(), "Gọi lại khiếu nại", spTicket.getNgayGoiLaiKhieuNai());
+    
+                        eventModels.add(tmpEm);
+                    } else if(spTicket.getNgayHenGoiLai() != null) {
+                        EventModel tmpEm = new EventModel(spTicket.getId(), "Hẹn gọi lại", spTicket.getNgayHenGoiLai());
+    
+                        eventModels.add(tmpEm);
+                    } else if(spTicket.getNgayGiaohang() != null) {
+                        EventModel tmpEm = new EventModel(spTicket.getId(), "Giao hàng", spTicket.getNgayGiaohang());
+    
+                        eventModels.add(tmpEm);
+                    }
+                }
+    
+                entity = new ResponseEntity<>(eventModels, HttpStatus.OK);
+            } else {
+                List<EventModel> eventModels = new ArrayList<EventModel>();
+    
+                List<SpTicket> spTickets = service.retriveByAgentXuLy(agentXuLy);
+    
+                for (SpTicket spTicket : spTickets) {
+                    if(spTicket.getNgayHenGap() != null) {
+                        EventModel tmpEm = new EventModel(spTicket.getId(), "Hẹn gặp", spTicket.getNgayHenGap());
+    
+                        eventModels.add(tmpEm);
+                    } else if(spTicket.getNgayGoiLaiKhieuNai() != null) {
+                        EventModel tmpEm = new EventModel(spTicket.getId(), "Gọi lại khiếu nại", spTicket.getNgayGoiLaiKhieuNai());
+    
+                        eventModels.add(tmpEm);
+                    } else if(spTicket.getNgayHenGoiLai() != null) {
+                        EventModel tmpEm = new EventModel(spTicket.getId(), "Hẹn gọi lại", spTicket.getNgayHenGoiLai());
+    
+                        eventModels.add(tmpEm);
+                    } else if(spTicket.getNgayGiaohang() != null) {
+                        EventModel tmpEm = new EventModel(spTicket.getId(), "Giao hàng", spTicket.getNgayGiaohang());
+    
+                        eventModels.add(tmpEm);
+                    }
+                }
+    
+                entity = new ResponseEntity<>(eventModels, HttpStatus.OK);
+            }
+        } else {
+            entity = new ResponseEntity<>(new ReturnModel("401", "Unauthorized"), HttpStatus.UNAUTHORIZED);
+        }
+        
         return entity;
     }
 }

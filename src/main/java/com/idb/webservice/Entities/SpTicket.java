@@ -40,4 +40,7 @@ public class SpTicket {
 
     @Column(name = "c_thoi_gian_giao_hang")
     private LocalDateTime ngayGiaohang;
+
+    @Column(name = "c_fknguoixuly")
+    private String agentXuLy;
 }

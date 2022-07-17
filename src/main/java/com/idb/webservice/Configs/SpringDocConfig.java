@@ -22,8 +22,12 @@ import io.swagger.v3.oas.annotations.servers.Server;
     ),
     servers = {
         @Server(
+            url = "http://103.146.21.147:8080/ws",
+            description = "Run on production with IP Address"
+        ),
+        @Server(
             url = "https://3cxcrm.thmilk.vn/ws",
-            description = "Run on production"
+            description = "Run on production with domain name"
         ),
         @Server(
         url = "http://localhost:8080",

@@ -39,5 +39,5 @@ public class KhachHangLeadFiltersModel {
 
     private String birthdayFrom;
     
-    private  String birthdayTo;
+    private String birthdayTo;
 }
